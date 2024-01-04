@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "📑 docs/challenges_and_best_practices/best_practices.md",
+                "file": "README.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "📑 docs/challenges_and_best_practices/best_practices.md",
+                "file": "README.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "📑 docs/challenges_and_best_practices/best_practices.md",
+                "file": "README.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "📑 docs/challenges_and_best_practices/best_practices.md"
+                "file": "README.md"
               }
             }
           }
@@ -146,11 +146,21 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "57f7c82d1e6756a6",
+  "active": "eaab9a386d5eaf5e",
   "lastOpenFiles": [
+    "📑 docs/challenges_and_best_practices/best_practices.md",
+    "DeepLearnHub/docs/resources_and_references",
+    "DeepLearnHub/docs/practical_examples_and_projects",
+    "DeepLearnHub/docs/popular_frameworks",
+    "DeepLearnHub/docs/natural_language_processing",
+    "DeepLearnHub/docs/model_evaluation_and_deployment",
+    "DeepLearnHub/docs/model_architectures",
+    "DeepLearnHub/docs/machine_learning_basics",
+    "DeepLearnHub/docs/foundational_concepts",
+    "DeepLearnHub/docs/deep_learning_fundamentals",
+    "DeepLearnHub/docs/data_science",
     "📑 docs/advanced_topics/reinforcement_learning.md",
     "📑 docs/advanced_topics/gans.md",
-    "📑 docs/challenges_and_best_practices/best_practices.md",
     "📑 docs/challenges_and_best_practices/challenges.md",
     "📑 docs/advanced_topics/transfer_learning.md"
   ]
