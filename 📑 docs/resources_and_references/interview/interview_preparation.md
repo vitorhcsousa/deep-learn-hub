@@ -1853,6 +1853,8 @@ Certainly! Let's explore these topics related to deploying and monitoring machin
 
 **Example**: A/B testing can be used to compare the performance of two different versions of a recommendation model by randomly showing users either version A or version B and measuring metrics such as click-through rate or conversion rate.
 
+<img src="../../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240305153850781.png" alt="image-20240305153850781" style="zoom:50%;" />
+
 #### Docker in Data Science and MLE
 
 **Overview**: Docker is a containerization platform that allows applications and their dependencies to be packaged into portable, lightweight containers for consistent deployment across different environments.
