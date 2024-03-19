@@ -1,5 +1,15 @@
 # Week 1- Introduction to LLMs and the generative AI project lifecycle
 
+### Learning Objectives
+
+------
+
+- Discuss model pre-training and the value of continued pre-training vs fine-tuning
+- Define the terms Generative AI, large language models, prompt, and describe the transformer architecture that powers LLMs
+- Describe the steps in a typical LLM-based, generative AI model lifecycle and discuss the constraining factors that drive decisions at each step of the model lifecycle
+- Discuss computational challenges during model pre-training and determine how to efficiently reduce memory footprint
+- Define the term scaling law and describe the laws that have been discovered for LLMs related to training dataset size, compute budget, inference requirements, and other factors.
+
 ## Generative AI and LLMs
 
 Generative AI is a subset of traditional machine learning. The machine learning models that underpin generative AI have learned these abilities by finding statistical patterns in massive datasets of content that humans originally generated
@@ -282,3 +292,70 @@ Example models:
 <img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318071551270.png" alt="image-20240318071551270" style="zoom:50%;" />
 
 One additional thing to keep in mind is that larger models of any architecture are typically more capable of carrying out their tasks well. Researchers have found that the larger a model, the more likely it is to work as you needed to without additional in-context learning or further training. This observed trend of increased model capability with size has driven the development of larger and larger models in recent years. This growth has been fueled by inflection points and research, such as the introduction of the highly scalable transformer architecture, access to massive amounts of data for training, and the development of more powerful computing resources. This steady increase in model size led some researchers to *hypothesize the existence of a new Moore's law for LLMs.* Like them, we may be asking, can we just keep adding parameters to increase performance and make models smarter? Where could this model growth lead? While this may sound great, it turns out that training these enormous models is difficult and very expensive, so much so that it may be infeasible to continuously train larger and larger models.
+
+## Computational challenges
+
+One technique that you can use to reduce the memory is called **quantization**. The main idea here is that you reduce the memory required to store the weights of your model by reducing their precision from 32-bit floating point numbers to 16-bit floating point numbers, or eight-bit integer numbers. The corresponding data types used in deep learning frameworks and libraries are FP32 for 32-bit full position, FP16, or Bfloat16 for 16-bit half-precision, and int8 eight-bit integers. The range of numbers you can represent with FP32 goes from approximately -3*10^38 to 3*10^38. By default, model weights, activations, and other model parameters are stored in FP32. Quantization statistically projects the original 32-bit floating point numbers into a lower precision space, using scaling factors calculated based on the range of the original 32-bit floating point numbers. 
+
+One datatype in particular BFLOAT16, has recently become a popular alternative to FP16. BFLOAT16, short for Brain Floating Point Format developed at Google Brain has become a popular choice in deep learning. Many LLMs, including FLAN-T5, have been pre-trained with BFLOAT16. BFLOAT16 or BF16 is a hybrid between half-precision FP16 and full-precision FP32. BF16 significantly helps with training stability and is supported by newer GPUs such as NVIDIA's A100. BFLOAT16 is often described as a truncated 32-bit float, as it captures the full dynamic range of the full 32-bit float, that uses only 16-bits. BFLOAT16 uses the full eight bits to represent the exponent but truncates the fraction to just seven bits. This not only saves memory but also increases model performance by speeding up calculations. The downside is that BF16 is not well suited for integer calculations, but these are relatively rare in deep learning.
+
+Let's summarize what you've learned here and emphasize the key points you should take away from this discussion. Remember that the goal of quantization is to reduce the memory required to store and train models by reducing the precision off the model weights. Quantization statistically projects the original 32-bit floating point numbers into lower precision spaces using scaling factors calculated based on the range of the original 32-bit floats. Modern deep learning frameworks and libraries support quantization-aware training, which learns the quantization scaling factors during the training process. 
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180027807.png" alt="image-20240318180027807" style="zoom:33%;" />
+
+By applying quantization, you can reduce your memory consumption required to store the model parameters down to only two gigabytes using 16-bit half-precision of 50% saving and you could further reduce the memory footprint by another 50% by representing the model parameters as eight-bit integers, which requires only one gigabyte of GPU RAM. Note that in all these cases you still have a model with one billion parameters.
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180154481.png" alt="image-20240318180154481" style="zoom: 25%;" />
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180230182.png" alt="image-20240318180230182" style="zoom: 25%;" />
+
+## Efficient multi-GPU compute strategies
+
+### Distributed Data-Parallel (DDP)
+
+The first step in scaling model training is to distribute large data sets across multiple GPUs and process these batches of data in parallel. A popular implementation of this model replication technique is Pi torches distributed data-parallel, or DDP for short. DDP copies your model onto each GPU and sends batches of data to each of the GPUs in parallel. Each data set is processed in parallel and then a synchronization step combines the results of each GPU, which in turn updates the model on each GPU, which is always identical across chips. This implementation allows parallel computations across all GPUs resulting in faster training. Note that DDP requires that your model weights and all of the additional parameters, gradients, and optimizer states that are needed for training, fit onto a single GPU. 
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/Screenshot%202024-03-18%20at%2018.07.25.png" alt="Screenshot 2024-03-18 at 18.07.25" style="zoom: 33%;" />
+
+### Modal Sharding
+
+If your model is too big for this, you should look into another technique called ***modal sharding.***
+
+A popular implementation of modal sharding is Pi Torch is fully sharded data parallel, or FSDP for short. FSDP is motivated by a paper published by researchers at Microsoft in 2019 that proposed a technique called ZeRO. ZeRO stands for zero redundancy optimizer and the goal of ZeRO is to optimize memory by distributing or sharding model states across GPUs with ZeRO data overlap. This allows you to scale model training across GPUs when your model doesn't fit in the memory of a single chip.
+
+Earlier this week, you looked at all of the memory components required for training LLMs, the largest memory requirement was for the optimizer states, which take up twice as much space as the weights, followed by the weights themselves and the gradients. Let's represent the parameters as this blue box, the gradients and yellow and the optimizer states in green. One limitation of the model replication strategy that I showed before is that you need to keep a full model copy on each GPU, which leads to redundant memory consumption. You are storing the same numbers on every GPU. ZeRO, on the other hand, eliminates this redundancy by distributing also referred to as sharding the model parameters, gradients, and optimizer states across GPUs instead of replicating them. At the same time, the communication overhead for a sinking model state stays close to that of the previously discussed ADP. ZeRO offers three optimization stages. ZeRO Stage 1, shots only optimizer states across GPUs, this can reduce your memory footprint by up to a factor of four. ZeRO Stage 2 also shots the gradients across chips. When applied together with Stage 1, this can reduce your memory footprint by up to eight times. Finally, ZeRO Stage 3 shots all components including the model parameters across GPUs. When applied together with Stages 1 and 2, memory reduction is linear with the  number of GPUs. For example, sharding across 64 GPUs could reduce your memory by a factor of 64. Let's apply this concept to the visualization of GDP and replace the LLM by the memory representation of model parameters, gradients, and optimizer states.
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318181239137.png" alt="image-20240318181239137" style="zoom:50%;" />
+
+
+
+### Fully Shared Data Parallell (FSDP)
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318181448734.png" alt="image-20240318181448734" style="zoom: 33%;" />
+
+When you use FSDP, you distribute the data across multiple GPUs as you saw in GDP. But with FSDP, you also distributed or shard the model parameters, and gradients, and optimised the states across the GPU nodes using one of the strategies specified in the ZeRO paper. With this strategy, you can now work with models too big to fit on a single chip. In contrast to GDP, where each GPU has all of the model states required for processing each batch of data available locally, FSDP requires you to collect this data from all of the GPUs before the forward and backward pass. Each CPU requests data from the other GPUs on-demand to materialize the sharded data into uncharted data for the duration of the operation. After the operation, you release the uncharted non-local data back to the other GPUs as original sharded data You can also choose to keep it for future operations during backward pass for example. Note, that this requires more GPU RAM again, this is a typical performance versus memory trade-off decision. In the final step after the backward pass, FSDP synchronizes the gradients across the GPUs in the same way they were for DDP. Model sharding S described with FSDP allows you to reduce your overall GPU memory utilization. Optionally, you can specify that FSDP offloads part of the training computation to GPUs to further reduce your GPU memory utilization. To manage the trade-off between performance and memory utilization, you can configure the level of sharding using FSDP is a charting factor. A sharding factor of one removes the sharding and replicates the full model similar to DDP. If you set the sharding factor to the maximum available GPUs, you turn on full sharding. This has the most memory savings but increases the communication volume between GPUs. Any sharding factor in between enables hyper-sharding.
+
+- Helps to reduce overall GPU memory utilization
+- supports offloading to CPU if needed
+- Configure the level of sharding via `sharding factor`
+
+> FSDP for both small and large models and seamlessly scale your model training across multiple GPUs..
+
+## Scaling laws and compute-optimal models
+
+### Scaling choices for pre-training
+
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240319063939184.png" alt="image-20240319063939184" style="zoom:50%;" />
+
+The ***Chinchilla*** paper hints that many of the 100 billion parameter large language models like GPT-3 may actually be over parameterized, meaning they have more parameters than they need to achieve a good understanding of language and under trained so that they would benefit from seeing more training data. The authors hypothesized that smaller models may be able to achieve the same performance as much larger ones if they are trained on larger datasets. In this table, you can see a selection of models along with their size and information about the dataset they were trained on. One important takeaway from the Chinchilla paper is that the optimal training dataset size for a given model is about 20 times larger than the number of parameters in the model. Chinchilla was determined to be compute optimal. For a 70 billion parameter model, the ideal training dataset contains 1.4 trillion tokens or 20 times the number of parameters.
+
+You can probably expect to see a deviation from the bigger is always better trends of the last few years as more teams or developers like you start to optimize their model design. The last model shown on this slide, Bloomberg GPT, is really interesting. It was trained in a compute optimal way following the Chinchilla loss and so achieves good performance with the size of 50 billion parameters.
+
+## Pre-training for domain adaption
+
+There's one situation where you may find it necessary to pre-train your model from scratch. If your target domain uses vocabulary and language structures that are not commonly used in day-to-day language. (Medical, legal, etc…)
+
+### BloombergGPT: domain adaptation for finance 
+
+51% Finance Data | 49% General Data
+
