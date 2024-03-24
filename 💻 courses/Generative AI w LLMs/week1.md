@@ -1,5 +1,9 @@
 # Week 1- Introduction to LLMs and the generative AI project lifecycle
 
+[TOC]
+
+
+
 ### Learning Objectives
 
 ------
@@ -136,7 +140,7 @@ Sentiment:
 
 The inclusion of a single example is known as **one-shot inference**, in contrast to the zero-shot prompt you supplied earlier. Sometimes a single example won't be enough for the model to learn what you want it to do. So you can extend the idea of giving a single example to include multiple examples. This is known as **few-shot inference**. 
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240317090816769.png" alt="image-20240317090816769" style="zoom:25%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240317090816769.png" alt="image-20240317090816769" style="zoom: 33%;" />
 
  Generally, if you find that your model isn't performing well when, say, including five or six examples, you should try ***fine-tuning your model instead***. Fine-tuning performs additional training on the model using new data to make it more capable of the task you want it to perform.
 
@@ -172,7 +176,7 @@ One more parameter that you can use to control the ***randomness*** of the model
 
 ## Generative AI project lifecycle
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240317092452784.png" alt="image-20240317092452784" style="zoom: 50%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240317092452784.png" alt="image-20240317092452784" style="zoom: 33%;" />
 
 The most important step in any project is to ***define the scope as accurately and narrowly as you can.*** Do you need the model to be able to carry out many different tasks, including long-form text generation or with a high degree of capability, or is the task much more specific like named entity recognition so that your model only needs to be good at one thing.
 
@@ -289,7 +293,7 @@ Example models:
 
 <img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318071840495.png" alt="image-20240318071840495" style="zoom:33%;" />
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318071551270.png" alt="image-20240318071551270" style="zoom:50%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318071551270.png" alt="image-20240318071551270" style="zoom:33%;" />
 
 One additional thing to keep in mind is that larger models of any architecture are typically more capable of carrying out their tasks well. Researchers have found that the larger a model, the more likely it is to work as you needed to without additional in-context learning or further training. This observed trend of increased model capability with size has driven the development of larger and larger models in recent years. This growth has been fueled by inflection points and research, such as the introduction of the highly scalable transformer architecture, access to massive amounts of data for training, and the development of more powerful computing resources. This steady increase in model size led some researchers to *hypothesize the existence of a new Moore's law for LLMs.* Like them, we may be asking, can we just keep adding parameters to increase performance and make models smarter? Where could this model growth lead? While this may sound great, it turns out that training these enormous models is difficult and very expensive, so much so that it may be infeasible to continuously train larger and larger models.
 
@@ -305,9 +309,9 @@ Let's summarize what you've learned here and emphasize the key points you should
 
 By applying quantization, you can reduce your memory consumption required to store the model parameters down to only two gigabytes using 16-bit half-precision of 50% saving and you could further reduce the memory footprint by another 50% by representing the model parameters as eight-bit integers, which requires only one gigabyte of GPU RAM. Note that in all these cases you still have a model with one billion parameters.
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180154481.png" alt="image-20240318180154481" style="zoom: 25%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180154481.png" alt="image-20240318180154481" style="zoom: 33%;" />
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180230182.png" alt="image-20240318180230182" style="zoom: 25%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318180230182.png" alt="image-20240318180230182" style="zoom: 33%;" />
 
 ## Efficient multi-GPU compute strategies
 
@@ -333,7 +337,7 @@ Earlier this week, you looked at all of the memory components required for train
 
 <img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240318181448734.png" alt="image-20240318181448734" style="zoom: 33%;" />
 
-When you use FSDP, you distribute the data across multiple GPUs as you saw in GDP. But with FSDP, you also distributed or shard the model parameters, and gradients, and optimised the states across the GPU nodes using one of the strategies specified in the ZeRO paper. With this strategy, you can now work with models too big to fit on a single chip. In contrast to GDP, where each GPU has all of the model states required for processing each batch of data available locally, FSDP requires you to collect this data from all of the GPUs before the forward and backward pass. Each CPU requests data from the other GPUs on-demand to materialize the sharded data into uncharted data for the duration of the operation. After the operation, you release the uncharted non-local data back to the other GPUs as original sharded data You can also choose to keep it for future operations during backward pass for example. Note, that this requires more GPU RAM again, this is a typical performance versus memory trade-off decision. In the final step after the backward pass, FSDP synchronizes the gradients across the GPUs in the same way they were for DDP. Model sharding S described with FSDP allows you to reduce your overall GPU memory utilization. Optionally, you can specify that FSDP offloads part of the training computation to GPUs to further reduce your GPU memory utilization. To manage the trade-off between performance and memory utilization, you can configure the level of sharding using FSDP is a charting factor. A sharding factor of one removes the sharding and replicates the full model similar to DDP. If you set the sharding factor to the maximum available GPUs, you turn on full sharding. This has the most memory savings but increases the communication volume between GPUs. Any sharding factor in between enables hyper-sharding.
+When you use FSDP, you distribute the data across multiple GPUs as you saw in GDP. But with FSDP, you also distributed or shard the model parameters, and gradients, and optimised the states across the GPU nodes using one of the strategies specified in the ZeRO paper. With this strategy, you can now work with models too big to fit on a single chip. In contrast to GDP, where each GPU has all of the model states required for processing each batch of data available locally, FSDP requires you to collect this data from all of the GPUs before the forward and backward pass. Each CPU requests data from the other GPUs on-demand to materialise the sharded data into uncharted data for the duration of the operation. After the operation, you release the uncharted non-local data back to the other GPUs as original sharded data You can also choose to keep it for future operations during backward pass for example. Note, that this requires more GPU RAM again, this is a typical performance versus memory trade-off decision. In the final step after the backward pass, FSDP synchronizes the gradients across the GPUs in the same way they were for DDP. Model sharding S described with FSDP allows you to reduce your overall GPU memory utilization. Optionally, you can specify that FSDP offloads part of the training computation to GPUs to reduce your GPU memory utilization further. To manage the trade-off between performance and memory utilisation, you can configure the level of sharding using FSDP is a charting factor. A sharding factor of one removes the sharding and replicates the full model similar to DDP. If you set the sharding factor to the maximum available GPUs, you turn on full sharding. This has the most memory savings but increases the communication volume between GPUs. Any sharding factor in between enables hyper-sharding.
 
 - Helps to reduce overall GPU memory utilization
 - supports offloading to CPU if needed
@@ -345,7 +349,7 @@ When you use FSDP, you distribute the data across multiple GPUs as you saw in GD
 
 ### Scaling choices for pre-training
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240319063939184.png" alt="image-20240319063939184" style="zoom:50%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240319063939184.png" alt="image-20240319063939184" style="zoom: 33%;" />
 
 The ***Chinchilla*** paper hints that many of the 100 billion parameter large language models like GPT-3 may actually be over parameterized, meaning they have more parameters than they need to achieve a good understanding of language and under trained so that they would benefit from seeing more training data. The authors hypothesized that smaller models may be able to achieve the same performance as much larger ones if they are trained on larger datasets. In this table, you can see a selection of models along with their size and information about the dataset they were trained on. One important takeaway from the Chinchilla paper is that the optimal training dataset size for a given model is about 20 times larger than the number of parameters in the model. Chinchilla was determined to be compute optimal. For a 70 billion parameter model, the ideal training dataset contains 1.4 trillion tokens or 20 times the number of parameters.
 
