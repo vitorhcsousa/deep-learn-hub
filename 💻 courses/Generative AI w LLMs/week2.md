@@ -250,7 +250,7 @@ Here are a couple of recent benchmarks that are pushing LLMs further:
 
 # Parameter Eficient fine-tuning (PEFT)
 
-<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240323083216390.png" alt="image-20240323083216390" style="zoom:50%;" />
+<img src="../../%F0%9F%96%BC%EF%B8%8F%20images/image-20240323083216390.png" alt="image-20240323083216390" style="zoom: 33%;" />
 
 In contrast to full fine-tuning where every model weight is updated during supervised learning, parameter efficient fine tuning methods only update a small subset of parameters. Some path techniques freeze most of the model weights and focus on fine tuning a subset of existing model parameters, for example, particular layers or components. Other techniques don't touch the original model weights at all, and instead add a small number of new parameters or layers and fine-tune only the new components.
 
